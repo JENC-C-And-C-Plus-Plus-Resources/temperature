@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MEMORY_H
+#define MEMORY_H
 #include <iostream>
 #include <cstdint> 
 using namespace std;
@@ -28,3 +29,4 @@ public:
     void write_16bit(size_t block, uint16_t data);
     void set_permission(size_t block, Permissions permission);
 };
+#endif
