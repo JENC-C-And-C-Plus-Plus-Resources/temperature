@@ -1,0 +1,4 @@
+cmake_minimum_required(VERSION 3.13)
+project(TEMPERATURE)
+add_executable(TEMPERATURE main.cpp)
+target_link_libraries(TEMPERATURE simple_memory)
