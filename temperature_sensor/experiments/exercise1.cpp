@@ -1,5 +1,6 @@
 #include <iostream>
-#include <cstdint>
+
+#include <cstdint> 
 
 using namespace std;
 
@@ -13,8 +14,6 @@ struct Register {
     uint8_t data = 0x0;
     Permissions permission = Permissions::READ_WRITE;
 };
-
-
 
 class Memory
 {
@@ -69,6 +68,7 @@ int main()
     mem.write_16bit(0, 550);
     mem.write_8bit (2, 50);
     mem.write_8bit (3, 100);
+
 
     cout << "At 0xFF00: " << (static_cast<unsigned int>(mem.read_16bit(0))) << endl;
     cout << "At 0xFF02: " << (static_cast<unsigned int>(mem.read_8bit(2))) << endl;
