@@ -32,19 +32,22 @@ enum STATUS {
 
 
 using namespace std;
-
+/**
+ * Checks the level of water.
+ */
 void check_water_level(void* mem)
 {
     Memory* memory = (Memory*)mem;
     const uint8_t water_level = memory->read_8bit(WATER_LEVEL_REGISTER);
     const uint8_t temperature_level = memory->read_8bit(TEMP_LEVEL_REGISTER);
-
     if(water_level >= 51 && temperature_level < 100) 
     {
         memory->write_8bit(STATUS_REGISTER,STATUS::HEATER_ON);
     }
 };
-
+/**
+ * Checks the heater device to provide power.
+ */
 void heater_controller(void* mem)
 {
     Memory* memory = (Memory*)mem;
@@ -66,7 +69,9 @@ string map_status_to_string(uint8_t status)
     std::string status_map[2] = { "Heater OFF", "Heater ON" };
     return status_map[status];
 };
-
+/**
+ * Prints in a human friendly way the variables.
+ */
 void dashboard(void* mem)
 {
     Memory* memory = (Memory*)mem;
@@ -102,6 +107,11 @@ void dashboard(void* mem)
     }
 };
 
+/**
+ * Simulates external interaction.
+ * Simulates water level raising.
+ * Simulates Temperature changes.
+ */
 void external_simulator(void* mem) {
     Memory* memory = (Memory*)mem;
     const uint8_t status = memory->read_8bit(STATUS_REGISTER); 
