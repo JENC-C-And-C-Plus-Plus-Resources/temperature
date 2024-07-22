@@ -56,5 +56,6 @@
         "typeinfo": "cpp",
         "iomanip": "cpp",
         "sstream": "cpp"
-    }
+    },
+    "cmake.sourceDirectory": "/root/projects/personal/intel/temperature_sensor/memory"
 }
