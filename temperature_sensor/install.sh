@@ -3,14 +3,14 @@ cd memory/build
 cmake -S ..
 make 
 make install
-cd ../
+cd ../../
 
 mkdir scheduler/build
 cd scheduler/build
 cmake -S ..
 make 
 make install
-cd ../
+cd ../../
 
 mkdir build
 cd build
