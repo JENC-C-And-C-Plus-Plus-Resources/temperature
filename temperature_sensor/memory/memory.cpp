@@ -12,6 +12,10 @@ const uint8_t Memory::read_8bit(size_t block)
 
 const uint16_t Memory::read_16bit(size_t block)
 { 
+    /**
+     * Bit wise operation, a shift to hte left for the highest 
+     * value and a or operation with the lowest part
+     */
     uint8_t low = registers[block].data;
     uint8_t high = registers[block+1].data;
     const uint16_t high_low = ((uint16_t)high) << 8 | low;

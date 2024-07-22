@@ -6,6 +6,7 @@ Task::Task(std::function<void(void*)> func,void* data, int period)
 
 Scheduler::Scheduler(size_t numThreads) : stopFlag(false) {
     for (size_t i = 0; i < numThreads; ++i) {
+        // insertion to the back of the worker execution
         threads.emplace_back(&Scheduler::worker, this);
     }
 }
@@ -16,9 +17,11 @@ Scheduler::~Scheduler() {
 
 void Scheduler::schedule(const Task& task) {
     {
+        // lock the common data source queue
         std::unique_lock<std::mutex> lock(queueMutex);
         taskQueue.push(task);
     }
+    // used to notify all the tasks.
     condition.notify_one();
 }
 
@@ -43,6 +46,7 @@ void Scheduler::worker() {
     while (true) {
         Task task([](void*){}, 0, 0);
         {
+            // Race condition, lock and wait so the function can use the shared resource.
             std::unique_lock<std::mutex> lock(queueMutex);
             condition.wait(lock, [this] { return !taskQueue.empty() || stopFlag; });
             if (stopFlag && taskQueue.empty()) {
