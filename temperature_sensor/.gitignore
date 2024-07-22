@@ -1,3 +1,5 @@
 build
 memory/build
 scheduler/build
+
+*.o
