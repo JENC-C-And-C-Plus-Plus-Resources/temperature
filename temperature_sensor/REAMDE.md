@@ -1,18 +1,8 @@
-- mkdir memory/build
-- cd memory/build
-- cmake -S ..
-- make 
-- make install
 
-- mkdir scheduler/build
-- cd scheduler/build
-- cmake -S ..
-- make 
-- make install
+# Process of installation
 
-- cd ../../
-- mkdir build
-- cd build
-- cmake -S ../src
-- make
-- ./TEMPERATURE
+## Install libraries and compile the executable
+
+## Execute the simulation
+cd ./build/
+./TEMPERATURE
