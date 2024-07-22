@@ -1,3 +1,21 @@
+/**
+ * 
+ * Problem statement:
+    Provide a solution to control the temperature of a liquid in a container. 
+    The temperature target is 100 C +- 5 C. 
+    If the liquid level falls below half-full the heating shall be turned off, if it rises above half-full, the heating shall be turned on.
+    There is a sensor that samples the temperature of the liquid every 6 seconds. 
+    This sensor is mapped to a 16-bit read-only hardware register that can be accessed directly at the memory location 0xFF00. The values at the register are in Celsius.
+    There is a sensor that samples the level of the liquid every 2 seconds. 
+    This sensor is mapped to an 8-bit read-only hardware register that can be accessed directly at the memory location 0xFF02. The values at the register are in percentages (0-100%).
+    There is a heating element that can be used to control the temperature of the liquid. 
+    This heating element is mapped to an 8-bit read-write hardware register that can be accessed directly at the memory location 0xFF03. The values at the register are in percentages (0-100%). The percentages represent how much power is applied to the heating element.
+    Write the code to create a control loop for the problem statement above.
+    You can assume further details as long as you document them in your justification.
+ */
+
+
+
 #include <iomanip>
 #include "memory.h"
 #include "scheduler.h"
