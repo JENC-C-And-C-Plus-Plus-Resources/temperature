@@ -2,7 +2,16 @@
 # Process of installation
 
 ## Install libraries and compile the executable
+Execute 
+```bash
+
+sh install.sh
+
+```
 
 ## Execute the simulation
-cd ./build/
-./TEMPERATURE
+```bash
+
+    cd ./build/
+    ./TEMPERATURE
+```
