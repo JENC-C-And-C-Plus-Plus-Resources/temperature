@@ -1,33 +1,121 @@
+#include <iomanip>
 #include "memory.h"
 #include "scheduler.h"
 
+#define TEMP_LEVEL_REGISTER 0
+#define WATER_LEVEL_REGISTER 2
+#define HEATER_POWER_REGISTER 3
+#define STATUS_REGISTER 4
+
+enum STATUS {
+    HEATER_TURNED_OFF,
+    HEATER_ON,
+};
+
+
 using namespace std;
 
-void check_water_level(int data) {
-    cout << "Checking water level every 2 seconds at 0xFF02: " << data << endl;
+void check_water_level(void* mem)
+{
+    Memory* memory = (Memory*)mem;
+    const uint8_t water_level = memory->read_8bit(WATER_LEVEL_REGISTER);
+    const uint8_t temperature_level = memory->read_8bit(TEMP_LEVEL_REGISTER);
+
+    if(water_level >= 51 && temperature_level < 100) 
+    {
+        memory->write_8bit(STATUS_REGISTER,STATUS::HEATER_ON);
+    }
 };
 
-void check_temperature(int data) {
-    cout << "Checking temperature, every 6 seconds at 0xFF00: " << data << endl;
+void heater_controller(void* mem)
+{
+    Memory* memory = (Memory*)mem;
+    const uint8_t status = memory->read_8bit(STATUS_REGISTER); 
+    const uint16_t temperature_level = memory->read_16bit(TEMP_LEVEL_REGISTER);
+
+    if(status == STATUS::HEATER_ON && temperature_level < 100)
+    {
+        memory->write_8bit(HEATER_POWER_REGISTER,25);
+    } 
+    else {
+        memory->write_8bit(HEATER_POWER_REGISTER,0);
+        memory->write_8bit(STATUS_REGISTER, STATUS::HEATER_TURNED_OFF);
+    }
 };
 
-void heater_controller(int data) {
-    cout << "Controlling heater, every 1 second at 0xFF03 " << data << endl;
+string map_status_to_string(uint8_t status)
+{
+    std::string status_map[2] = { "Heater OFF", "Heater ON" };
+    return status_map[status];
+};
+
+void dashboard(void* mem)
+{
+    Memory* memory = (Memory*)mem;
+    const uint16_t temperature_level = memory->read_16bit(TEMP_LEVEL_REGISTER);
+    const uint8_t water_level = memory->read_8bit(WATER_LEVEL_REGISTER);
+    const uint8_t heater_level = memory->read_8bit(HEATER_POWER_REGISTER);
+    const uint8_t status = memory->read_8bit(STATUS_REGISTER);
+
+    std::cout << "\033c" << std::endl;
+    std::string headers[4] = {"Temperature Celsius", "Water Level", "Heater Level", "Status"};
+    // Print headers
+    for (auto &header: headers) {
+        std::cout << std::setw(35) << header;
+    }
+
+    std::string data[1][4] = {
+        {
+            std::to_string(static_cast<unsigned int>(temperature_level)) + " C", 
+            std::to_string(static_cast<unsigned int>(water_level)) + " %",
+            std::to_string(static_cast<unsigned int>(heater_level)) + " %",
+            map_status_to_string(status)
+        }
+    };
+
+    std::cout << std::endl;
+
+    // Print data
+    for (auto &row: data) {
+        for (auto &column: row) {
+            std::cout << std::setw(35) << column;
+        }
+        std::cout << std::endl;
+    }
+};
+
+void external_simulator(void* mem) {
+    Memory* memory = (Memory*)mem;
+    const uint8_t status = memory->read_8bit(STATUS_REGISTER); 
+    const uint8_t water_level = memory->read_8bit(WATER_LEVEL_REGISTER);
+
+    if(water_level < 51)
+    {
+        memory->write_8bit(WATER_LEVEL_REGISTER, water_level+10);
+    }
+    
+    if(status == STATUS::HEATER_ON)
+    {
+        const uint16_t temperature_level = memory->read_16bit(TEMP_LEVEL_REGISTER);
+        const uint16_t heater_powrer = memory->read_8bit(HEATER_POWER_REGISTER);
+        memory->write_16bit(TEMP_LEVEL_REGISTER, temperature_level + (heater_powrer/5));
+    }
 }
 
-
 int main() {
-
-    Memory mem(4);
-    mem.write_16bit(0, 550); // 0xFF00 Location of temperature: T +-5 Celsius
-    mem.write_8bit (2, 50);  // 0xFF02 Location of water level: 0-100%
-    mem.write_8bit (3, 100); // 0xFD03 Location of heater power: 0-100%
+    
+    Memory mem(5);
+    mem.write_16bit(TEMP_LEVEL_REGISTER, 25); // 0xFF00 Location of temperature: T +-5 Celsius
+    mem.write_8bit (WATER_LEVEL_REGISTER, 0); // 0xFF02 Location of water level: 0-100%
+    mem.write_8bit (HEATER_POWER_REGISTER, 0);  // 0xFF03 Location of heater power: 0-100%
+    mem.write_8bit (STATUS_REGISTER, STATUS::HEATER_TURNED_OFF);  // 0xFF04 Location of the status: 0-100%
        
     Scheduler scheduler(4); 
 
-    scheduler.schedule(Task(heater_controller, static_cast<int>(mem.read_8bit(3)), 1));
-    scheduler.schedule(Task(check_water_level, static_cast<int>(mem.read_8bit(2)), 2));
-    scheduler.schedule(Task(check_temperature, static_cast<int>(mem.read_16bit(0)), 6));
+    scheduler.schedule(Task(dashboard, &mem, 1));
+    scheduler.schedule(Task(external_simulator, &mem, 1)); 
+    scheduler.schedule(Task(check_water_level, &mem, 2));
+    scheduler.schedule(Task(heater_controller, &mem, 6));
 
     scheduler.start();
     scheduler.stop();

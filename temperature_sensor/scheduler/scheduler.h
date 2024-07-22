@@ -10,11 +10,11 @@
 
 class Task {
 public:
-    Task(std::function<void(int)> func, int data, int period);
+    Task(std::function<void(void*)> func, void* data, int period);
 
-    std::function<void(int)> func; // Abstraction of a function
+    std::function<void(void*)> func; // Abstraction of a function
     int period; // Time in seconds to be re scheduled.
-    int data;
+    void* data;
 };
 
 class Scheduler {

@@ -1,6 +1,6 @@
 #include "scheduler.h"
 
-Task::Task(std::function<void(int)> func,int data, int period)
+Task::Task(std::function<void(void*)> func,void* data, int period)
         : func(func), period(period), data(data) {}
 
 
@@ -41,7 +41,7 @@ void Scheduler::stop() {
 
 void Scheduler::worker() {
     while (true) {
-        Task task([](int){}, 0, 0);
+        Task task([](void*){}, 0, 0);
         {
             std::unique_lock<std::mutex> lock(queueMutex);
             condition.wait(lock, [this] { return !taskQueue.empty() || stopFlag; });
