@@ -130,9 +130,16 @@ int main() {
        
     Scheduler scheduler(4); 
 
+    // Task definition for a dash board to display data at the console.
     scheduler.schedule(Task(dashboard, &mem, 1));
+
+    // Task that simulates the external interactions.
     scheduler.schedule(Task(external_simulator, &mem, 1)); 
+    
+    // Task that checks the water level.
     scheduler.schedule(Task(check_water_level, &mem, 2));
+    
+    // Task that checks the heater level.
     scheduler.schedule(Task(heater_controller, &mem, 6));
 
     scheduler.start();
