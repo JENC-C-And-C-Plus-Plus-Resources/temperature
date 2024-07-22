@@ -1,7 +1,7 @@
 #include "scheduler.h"
 
-Task::Task(std::function<void()> func, int period)
-        : func(func), period(period) {}
+Task::Task(std::function<void(int)> func,int data, int period)
+        : func(func), period(period), data(data) {}
 
 
 Scheduler::Scheduler(size_t numThreads) : stopFlag(false) {
@@ -41,7 +41,7 @@ void Scheduler::stop() {
 
 void Scheduler::worker() {
     while (true) {
-        Task task([]{}, 0);
+        Task task([](int){}, 0, 0);
         {
             std::unique_lock<std::mutex> lock(queueMutex);
             condition.wait(lock, [this] { return !taskQueue.empty() || stopFlag; });
@@ -52,8 +52,7 @@ void Scheduler::worker() {
             taskQueue.pop();
         }
 
-
-        task.func();
+        task.func(task.data);
 
         if (task.period > 0) {
             std::this_thread::sleep_for(std::chrono::seconds(task.period));
